@@ -1,70 +1,114 @@
-name: "template"
-
+name: "aws-philips-labs-github-runners"
 # Canonical GitHub repo
-github_repo: "cloudposse-terraform-components/template"
-
+github_repo: "cloudposse-terraform-components/aws-philips-labs-github-runners"
 # Short description of this project
 description: |-
-  Description of this component
+  This component is responsible for provisioning the surrounding infrastructure for the github runners.
 
-usage: |-
-  **Stack Level**: Regional or Test47
+  ## Prerequisites
+
+  - Github App installed on the organization
+    - For more details see
+      [Philips Lab's Setting up a Github App](https://github.com/philips-labs/terraform-aws-github-runner/tree/main#setup-github-app-part-1)
+    - Ensure you create a **PRIVATE KEY** and store it in SSM, **NOT** to be confused with a **Client Secret**. Private
+      Keys are created in the GitHub App Configuration and scrolling to the bottom.
+  - Github App ID and private key stored in SSM under `/pl-github-runners/id` (or the value of
+    `var.github_app_id_ssm_path`)
+  - Github App Private Key stored in SSM (base64 encoded) under `/pl-github-runners/key` (or the value of
+    `var.github_app_key_ssm_path`)
+
+  ## Usage
+
+  **Stack Level**: Regional
 
   Here's an example snippet for how to use this component.
-  
+
   ```yaml
   components:
     terraform:
-      foo:
+      philips-labs-github-runners:
         vars:
           enabled: true
   ```
 
+  The following will create
+
+  - An API Gateway
+  - Lambdas
+  - SQS Queue
+  - EC2 Launch Template instances
+
+  The API Gateway is registered as a webhook within the GitHub app. Which scales up or down, via lambdas, the EC2 Launch
+  Template by the number of messages in the SQS queue.
+
+  ![Architecture](https://github.com/philips-labs/terraform-aws-github-runner/blob/main/docs/component-overview.svg)
+
+  ## Modules
+
+  ### `webhook-github-app`
+
+  This is a fork of https://github.com/philips-labs/terraform-aws-github-runner/tree/main/modules/webhook-github-app.
+
+  We customized it until this PR is resolved as it does not update the github app webhook until this is merged.
+
+  - https://github.com/philips-labs/terraform-aws-github-runner/pull/3625
+
+  This module also requires an environment variable
+
+  - `GH_TOKEN` - a github token be set
+
+  This module also requires the `gh` cli to be installed. Your Dockerfile can be updated to include the following to
+  install it:
+
+  ```dockerfile
+  ARG GH_CLI_VERSION=2.39.1
+  # ...
+  ARG GH_CLI_VERSION
+  RUN apt-get update && apt-get install -y --allow-downgrades \
+      gh="${GH_CLI_VERSION}-*"
+  ```
+
+  By default, we leave this disabled, as it requires a github token to be set. You can enable it by setting
+  `var.enable_update_github_app_webhook` to `true`. When enabled, it will update the github app webhook to point to the
+  API Gateway. This can occur if the API Gateway is deleted and recreated.
+
+  When disabled, you will need to manually update the github app webhook to point to the API Gateway. This is output by
+  the component, and available via the `webhook` output under `endpoint`.
+
+  <!-- prettier-ignore-start -->
+
+  <!-- prettier-ignore-end -->
+
+  ## References
+
+  - [cloudposse/terraform-aws-components](https://github.com/cloudposse/terraform-aws-components/tree/main/modules/ecs) -
+    Cloud Posse's upstream component
 include:
   - "docs/terraform.md"
-
 tags:
-  - terraform
-  - terraform-modules
-  - aws
-  - components
-  - terraform-components
-  - root
-  - geodesic
-  - reference-implementation
-  - reference-architecture
-
+  - component/philips-labs-github-runners
+  - layer/github
+  - provider/aws
 # Categories of this project
 categories:
-  - terraform-modules/root
-  - terraform-components
-
+  - component/philips-labs-github-runners
+  - layer/github
+  - provider/aws
 # License of this project
 license: "APACHE2"
-
 # Badges to display
 badges:
-  - name: "Latest Release"
-    image: "https://img.shields.io/github/release/cloudposse-terraform-components/template.svg?style=for-the-badge"
-    url: "https://github.com/cloudposse-terraform-components/template/releases/latest"
-  - name: "Slack Community"
-    image: "https://slack.cloudposse.com/for-the-badge.svg"
-    url: "https://slack.cloudposse.com"
-
-references:
-  - name: "Cloud Posse Documentation"
-    description: "Complete documentation for the Cloud Posse solution"
-    url: "https://docs.cloudposse.com"
-  - name: "Reference Architectures"
-    description: "Launch effortlessly with our turnkey reference architectures, built either by your team or ours."
-    url: "https://cloudposse.com/"
-
+  - name: Latest Release
+    image: https://img.shields.io/github/release/cloudposse-terraform-components/aws-philips-labs-github-runners.svg?style=for-the-badge
+    url: https://github.com/cloudposse-terraform-components/aws-philips-labs-github-runners/releases/latest
+  - name: Slack Community
+    image: https://slack.cloudposse.com/for-the-badge.svg
+    url: https://slack.cloudposse.com
 related:
-- name: "Cloud Posse Terraform Modules"
-  description: Our collection of reusable Terraform modules used by our reference architectures.
-  url: "https://docs.cloudposse.com/modules/"
-- name: "Atmos"
-  description: "Atmos is like docker-compose but for your infrastructure"
-  url: "https://atmos.tools"
-
+  - name: "Cloud Posse Terraform Modules"
+    description: Our collection of reusable Terraform modules used by our reference architectures.
+    url: "https://docs.cloudposse.com/modules/"
+  - name: "Atmos"
+    description: "Atmos is like docker-compose but for your infrastructure"
+    url: "https://atmos.tools"
 contributors: [] # If included generates contribs
