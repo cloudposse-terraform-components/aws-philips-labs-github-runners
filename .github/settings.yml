@@ -1,0 +1,7 @@
+# Upstream changes from _extends are only recognized when modifications are made to this file in the default branch.
+_extends: .github
+repository:
+  name: aws-philips-labs-github-runners
+  description: This component is responsible for provisioning the surrounding infrastructure for the github runners
+  homepage: https://cloudposse.com/accelerate
+  topics: terraform, terraform-component
