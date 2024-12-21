@@ -54,7 +54,7 @@ module "github_runner" {
   count = local.enabled ? 1 : 0
 
   source  = "philips-labs/github-runner/aws"
-  version = "5.4.2"
+  version = "5.21.0"
 
   depends_on = [module.module_artifact]
 
@@ -97,7 +97,7 @@ module "github_runner" {
 module "webhook_github_app" {
   count   = local.enabled && var.enable_update_github_app_webhook ? 1 : 0
   source  = "philips-labs/github-runner/aws//modules/webhook-github-app"
-  version = "5.4.2"
+  version = "5.21.0"
 
   depends_on = [module.github_runner]
 
