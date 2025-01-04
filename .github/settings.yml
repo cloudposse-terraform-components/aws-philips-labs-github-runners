@@ -5,5 +5,3 @@ repository:
   description: This component is responsible for provisioning the surrounding infrastructure for the github runners
   homepage: https://cloudposse.com/accelerate
   topics: terraform, terraform-component
-
-
