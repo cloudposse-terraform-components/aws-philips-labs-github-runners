@@ -22,7 +22,7 @@ module "store_read" {
   count = local.enabled ? 1 : 0
 
   source  = "cloudposse/ssm-parameter-store/aws"
-  version = "0.11.0"
+  version = "0.13.0"
 
   parameter_read = [
     var.github_app_key_ssm_path,
