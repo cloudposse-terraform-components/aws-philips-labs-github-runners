@@ -44,6 +44,45 @@ This component provisions the surrounding infrastructure for GitHub self-hosted 
 - GitHub App Private Key stored in SSM (base64 encoded) under `/pl-github-runners/key` (or the value of
   `var.github_app_key_ssm_path`)
 
+
+> [!TIP]
+> #### 👽 Use Atmos with Terraform
+> Cloud Posse uses [`atmos`](https://atmos.tools) to easily orchestrate multiple environments using Terraform. <br/>
+> Works with [Github Actions](https://atmos.tools/integrations/github-actions/), [Atlantis](https://atmos.tools/integrations/atlantis), or [Spacelift](https://atmos.tools/integrations/spacelift).
+>
+> <details>
+> <summary><strong>Watch demo of using Atmos with Terraform</strong></summary>
+> <img src="https://github.com/cloudposse/atmos/blob/main/docs/demo.gif?raw=true"/><br/>
+> <i>Example of running <a href="https://atmos.tools"><code>atmos</code></a> to manage infrastructure from our <a href="https://atmos.tools/quick-start/">Quick Start</a> tutorial.</i>
+> </details>
+
+
+
+
+
+## Usage
+
+**Stack Level**: Regional
+Here's an example snippet for how to use this component.
+```yaml
+components:
+  terraform:
+    philips-labs-github-runners:
+      vars:
+        enabled: true
+```
+The following will create
+
+- An API Gateway
+- Lambdas
+- SQS Queue
+- EC2 Launch Template instances
+
+The API Gateway is registered as a webhook within the GitHub app. Which scales up or down, via lambdas, the EC2 Launch
+Template by the number of messages in the SQS queue.
+
+![Architecture](https://github.com/philips-labs/terraform-aws-github-runner/blob/main/docs/component-overview.svg)
+
 ## Modules
 
 ### `webhook-github-app`
@@ -75,48 +114,6 @@ API Gateway. This can occur if the API Gateway is deleted and recreated.
 
 When disabled, you will need to manually update the GitHub App webhook to point to the API Gateway. This is output by
 the component, and available via the `webhook` output under `endpoint`.
-
-
-> [!TIP]
-> #### 👽 Use Atmos with Terraform
-> Cloud Posse uses [`atmos`](https://atmos.tools) to easily orchestrate multiple environments using Terraform. <br/>
-> Works with [Github Actions](https://atmos.tools/integrations/github-actions/), [Atlantis](https://atmos.tools/integrations/atlantis), or [Spacelift](https://atmos.tools/integrations/spacelift).
->
-> <details>
-> <summary><strong>Watch demo of using Atmos with Terraform</strong></summary>
-> <img src="https://github.com/cloudposse/atmos/blob/main/docs/demo.gif?raw=true"/><br/>
-> <i>Example of running <a href="https://atmos.tools"><code>atmos</code></a> to manage infrastructure from our <a href="https://atmos.tools/quick-start/">Quick Start</a> tutorial.</i>
-> </details>
-
-
-
-
-
-## Usage
-
-**Stack Level**: Regional
-
-Here's an example snippet for how to use this component.
-
-```yaml
-components:
-  terraform:
-    philips-labs-github-runners:
-      vars:
-        enabled: true
-```
-
-The following will create:
-
-- An API Gateway
-- Lambdas
-- SQS Queue
-- EC2 Launch Template instances
-
-The API Gateway is registered as a webhook within the GitHub App, which scales up or down, via Lambdas, the EC2 Launch
-Template by the number of messages in the SQS queue.
-
-![Architecture](https://github.com/philips-labs/terraform-aws-github-runner/blob/main/docs/component-overview.svg)
 
 > [!IMPORTANT]
 > In Cloud Posse's examples, we avoid pinning modules to specific versions to prevent discrepancies between the documentation

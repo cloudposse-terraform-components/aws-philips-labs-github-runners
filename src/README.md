@@ -20,6 +20,28 @@ This component provisions the surrounding infrastructure for GitHub self-hosted 
   `var.github_app_id_ssm_path`)
 - GitHub App Private Key stored in SSM (base64 encoded) under `/pl-github-runners/key` (or the value of
   `var.github_app_key_ssm_path`)
+## Usage
+
+**Stack Level**: Regional
+Here's an example snippet for how to use this component.
+```yaml
+components:
+  terraform:
+    philips-labs-github-runners:
+      vars:
+        enabled: true
+```
+The following will create
+
+- An API Gateway
+- Lambdas
+- SQS Queue
+- EC2 Launch Template instances
+
+The API Gateway is registered as a webhook within the GitHub app. Which scales up or down, via lambdas, the EC2 Launch
+Template by the number of messages in the SQS queue.
+
+![Architecture](https://github.com/philips-labs/terraform-aws-github-runner/blob/main/docs/component-overview.svg)
 
 ## Modules
 
@@ -52,31 +74,6 @@ API Gateway. This can occur if the API Gateway is deleted and recreated.
 
 When disabled, you will need to manually update the GitHub App webhook to point to the API Gateway. This is output by
 the component, and available via the `webhook` output under `endpoint`.
-## Usage
-
-**Stack Level**: Regional
-
-Here's an example snippet for how to use this component.
-
-```yaml
-components:
-  terraform:
-    philips-labs-github-runners:
-      vars:
-        enabled: true
-```
-
-The following will create:
-
-- An API Gateway
-- Lambdas
-- SQS Queue
-- EC2 Launch Template instances
-
-The API Gateway is registered as a webhook within the GitHub App, which scales up or down, via Lambdas, the EC2 Launch
-Template by the number of messages in the SQS queue.
-
-![Architecture](https://github.com/philips-labs/terraform-aws-github-runner/blob/main/docs/component-overview.svg)
 
 
 <!-- markdownlint-disable -->
